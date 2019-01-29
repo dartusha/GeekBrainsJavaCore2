@@ -1,5 +1,6 @@
+--Exception class
 public class MyArrayDataException extends RuntimeException{
-    private int x, y;
+    private int x, y; 
     private String value;
 
     public MyArrayDataException(Throwable e) {
