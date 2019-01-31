@@ -1,9 +1,5 @@
+//test class
 public class Test {
-
-    /*
-    3. В методе main() вызвать полученный метод, обработать возможные исключения MySizeArrayException
-    и MyArrayDataException и вывести результат расчета.
-     */
     public static void main(String[] args) {
         System.out.println("Задание 1");
         String[] arr={"на","дворе","трава","на", "траве","дрова","не","руби","дрова","на","траве","двора"};
