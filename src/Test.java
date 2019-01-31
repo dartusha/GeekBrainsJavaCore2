@@ -1,37 +1,19 @@
 public class Test {
-    private int sum=0;
-
-    //testing1
-    public Test(){
-      // String[][] arr={{"1","2","3","4"},{"test","test","5","6"}}; //тест кейс 1
-        String[][] arr={{"1","2","3","4"},{"test","test","5","6"},{"7","8","9","0"},{"1","2","3","4"}}; //тест кейс 2
-       // String[][] arr={{"1","2","3","4"},{"1","2","5","6"},{"7","8","9","0"},{"1","2","3","4"}}; //тест кейс 3
-        MyException expt=new MyException(arr);
-        this.sum=expt.getSum();
-    }
-
-    public int getSum() {
-        return sum;
-    }
-
-
-    /*
-    3. В методе main() вызвать полученный метод, обработать возможные исключения MySizeArrayException
-    и MyArrayDataException и вывести результат расчета.
-     */
     public static void main(String[] args) {
-        try {
-            Test tst=new Test();
-            System.out.println("Сумма равна: "+tst.getSum());
-        }
-        catch (MyArraySizeException e){
-            System.out.println("Размерность массива должна быть 4*4!");
-        }
-        //тут добавила вывод значения, т.к. пользователю удобнее будет видеть, на чем упало
-        catch (MyArrayDataException e) {
-            System.out.println("В ячейке "+e.getX()+","+e.getY()+" содержится нечисловое значение "+e.getValue());
-        }
+        System.out.println("Задание 1");
+        String[] arr={"на","дворе","трава","на", "траве","дрова","не","руби","дрова","на","траве","двора"};
+        Task1 task1=new Task1(arr);
+        System.out.println("");
 
+        System.out.println("Задание 2");
+        Task2 task2=new Task2();
+        task2.add("Иванов","1111111");
+        task2.add("Иванов","2222222");
+
+        task2.add("Петров","3333333");
+
+        task2.get("Иванов");
+        task2.get("Петров");
     }
 
 }
