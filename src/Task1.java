@@ -10,17 +10,20 @@ public class Task1 {
         HashMap<String, Integer> res =getUniqueCnt(arr);
         System.out.println(res);
     }
-
+    
     public HashMap getUniqueCnt(String arr[]){
         HashMap<String, Integer> res = new HashMap<String, Integer>();
         for (String i:arr){
             int cnt=0;
+
             if (!(res.containsKey(i))){
-                for (String j:arr){
-                    if (i.equals(j)) cnt++;
-                }
-                res.put(i,cnt);
+                cnt=1;
             }
+            else
+              cnt=res.get(i)+1;
+
+            res.put(i,cnt);
+
         }
         return res;
     }
