@@ -60,41 +60,58 @@ public class Task1 {
         System.out.println("");
     }
 
-    public static void t2_1() {
+    public static void t2_0() {
         long a = System.currentTimeMillis();
         System.arraycopy(arr, 0, a1, 0, h);
-        System.out.format("Время работы разбивки подмассива 1: %d милисекунд",System.currentTimeMillis() - a);
+        System.arraycopy(arr, h, a2, 0, h);
+        System.out.format("Время работы разбивки: %d милисекунд",System.currentTimeMillis() - a);
         System.out.println("");
-        a = System.currentTimeMillis();
+    }
+
+    public static void t2_1() {
+        long a = System.currentTimeMillis();
         for (int i = 0; i < a1.length; i++) {
             a1[i] = (float) (a1[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
         System.out.format("Просчет подмассива 1: %d милисекунд",System.currentTimeMillis() - a);
         System.out.println("");
+
+        synchronized (arr) {
+            a = System.currentTimeMillis();
+            System.arraycopy(a1, 0, arr, 0, h);
+            System.out.format("Склейка массива 1: %d милисекунд", System.currentTimeMillis() - a);
+            System.out.println("");
+        }
     }
 
     public static void t2_2() {
         long a = System.currentTimeMillis();
-        System.arraycopy(arr, h, a2, 0, h);
-        System.out.format("Время работы разбивки подмассива 2: %d милисекунд",System.currentTimeMillis() - a);
-        System.out.println("");
-        a = System.currentTimeMillis();
         for (int i = 0; i < a2.length; i++) {
             a1[i] = (float) (a2[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
         System.out.format("Просчет подмассива 2: %d милисекунд",System.currentTimeMillis() - a);
         System.out.println("");
+
+        synchronized (arr) {
+            a = System.currentTimeMillis();
+            System.arraycopy(a2, 0, arr, h, h);
+            System.out.format("Склейка массива 2: %d милисекунд", System.currentTimeMillis() - a);
+            System.out.println("");
+
+            for (int i = 0; i < 15; i++) {
+                System.out.print(arr[arr.length-i-1]);
+            }
+            System.out.println("");
+        }
     }
 
-    public void t2_3() {
-        synchronized (arr) {
+    public  synchronized void  t2_3() {
             long a = System.currentTimeMillis();
 
             System.arraycopy(a1, 0, arr, 0, h);
             System.arraycopy(a2, 0, arr, h, h);
             System.out.format("Склейка: %d милисекунд", System.currentTimeMillis() - a);
-            System.out.println("");
-        }
+
     }
 
 
@@ -136,8 +153,8 @@ public class Task1 {
 
         arr=createArray();
         one();
-        for (int i = 0; i < 5; i++) {
-            System.out.print(arr[i]);
+        for (int i = 0; i < 15; i++) {
+            System.out.print(arr[arr.length-i-1]);
         }
         System.out.println("");
 
@@ -147,16 +164,12 @@ public class Task1 {
         arr = new float[size];
         arr=createArray();
 
+        t2_0();
         new Thread(() -> task1.t2_1()).start();
         new Thread(() -> task1.t2_2()).start();
-        new Thread(() -> task1.t2_3()).start();
+      //  new Thread(() -> task1.t2_3()).start();
 
         //t2_3();
-
-        for (int i = 0; i < 5; i++) {
-            System.out.print(arr[i]);
-        }
-        System.out.println("");
 
     }
 }
