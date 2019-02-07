@@ -163,6 +163,8 @@ public class Task1 {
       //
         arr = new float[size];
         arr=createArray();
+        a1 = new float[size/2+1];
+        a2 = new float[size/2+1];
 
         t2_0();
         new Thread(() -> task1.t2_1()).start();
