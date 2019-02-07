@@ -34,22 +34,66 @@ arr[i] = (float)(arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math
 Для второго метода замеряете время разбивки массива на 2, просчета каждого из двух массивов и склейки.
  */
 
-public class Task1 {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Task {
     static final int size = 10000000;
     static final int h = size / 2;
     static float[] arr = new float[size];
-    static float[] a1 = new float[h];
-    static float[] a2 = new float[h];
-    static int cnt=0;
-   // Object lock1 = new Object();
 
-    public Task1(){
+    static float[] divArr1 = new float[h];
+    static float[] divArr2 = new float[h];
+
+    public Task(){
     }
+
     public static float[] createArray(){
         for (int i = 0; i < size; i++) {
             arr[i]=1;
         }
         return arr;
+    }
+
+    public static void calc(float[] calcArr, int counter){
+        long a = System.currentTimeMillis();
+
+        for (int i=0, j = i+counter*h ; i < h; i++, j = i+counter*h) {
+            calcArr[i] = (float) ( calcArr[i] * Math.sin(0.2f + j / 5) * Math.cos(0.2f + j / 5) * Math.cos(0.4f + j / 2));
+        }
+        System.out.format("Расчет для массива %d. Время работы: %d милисекунд",(counter+1), System.currentTimeMillis() - a);
+        System.out.println("");
+    }
+
+    public static void divide(float[] baseArr) {
+        long a = System.currentTimeMillis();
+        System.arraycopy(baseArr, 0, divArr1, 0, h);
+        System.arraycopy(baseArr, h, divArr2, 0, h);
+
+        System.out.format("Время работы разбивки: %d милисекунд",System.currentTimeMillis() - a);
+        System.out.println("");
+    }
+
+    public static float[] getBaseArr(){
+        return arr;
+    }
+
+    public static float[] getDivArr1(){
+        return divArr1;
+    }
+
+    public static float[] getDivArr2(){
+        return divArr2;
+    }
+
+    public static float[] plus(float[] dvArr1,float[] dvArr2){
+        long a = System.currentTimeMillis();
+        float[] returnArr = new float[size];
+        System.arraycopy(dvArr1, 0, returnArr, 0, h);
+        System.arraycopy(dvArr2, 0, returnArr , h, h);
+        System.out.format("Склейка массивов: %d милисекунд", System.currentTimeMillis() - a);
+        System.out.println("");
+        return returnArr;
     }
 
     public static void one(){
@@ -61,95 +105,46 @@ public class Task1 {
         System.out.println("");
     }
 
-    public static void t2_0() {
-        long a = System.currentTimeMillis();
-        System.arraycopy(arr, 0, a1, 0, h);
-        System.arraycopy(arr, h, a2, 0, h);
-        System.out.format("Время работы разбивки: %d милисекунд",System.currentTimeMillis() - a);
+    public static void test(){
+        System.out.println("Тестовый прогон. Сравниваем значения на границе склейки:");
+        for (int i = size/2-10; i < size/2+10; i++) {
+            System.out.print(arr[i]);
+        }
         System.out.println("");
     }
 
-    public static void t2_1() {
-        long a = System.currentTimeMillis();
-        for (int i = 0; i < a1.length; i++) {
-            a1[i] = (float) (a1[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
-        }
-        System.out.format("Просчет подмассива 1: %d милисекунд",System.currentTimeMillis() - a);
-        System.out.println("");
 
-        synchronized (arr) {
-            a = System.currentTimeMillis();
-            System.arraycopy(a1, 0, arr, 0, h);
-            System.out.format("Склейка массива 1: %d милисекунд", System.currentTimeMillis() - a);
-            System.out.println("");
-
-            cnt++;
-            if (cnt==2){
-                for (int i = 0; i < 15; i++) {
-                    System.out.print(arr[arr.length-i-1]);
-                }
-                System.out.println("");
-            }
-
-        }
-    }
-
-    public static void t2_2() {
-        long a = System.currentTimeMillis();
-        for (int i=0, j = i+h ; i < h; i++, j = i+h) {
-            a2[i] = (float) (a2[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + j / 5) * Math.cos(0.4f + j / 2));
-        }
-        System.out.format("Просчет подмассива 2: %d милисекунд",System.currentTimeMillis() - a);
-        System.out.println("");
-
-        synchronized (arr) {
-            a = System.currentTimeMillis();
-            System.arraycopy(a2, 0, arr, h, h);
-            System.out.format("Склейка массива 2: %d милисекунд", System.currentTimeMillis() - a);
-            System.out.println("");
-
-            cnt++;
-           // System.out.println(cnt);
-            if (cnt==2){
-                for (int i = 0; i < 5; i++) {
-                    System.out.print(arr[arr.length-i-1]);
-                }
-                System.out.println("");
-            }
-        }
-    }
-
-    static void task1(){
+    public static void main(String[] args) throws InterruptedException {
         Task1 task1 = new Task1();
         System.out.println("Start");
 
         arr=createArray();
         one();
-        for (int i = 0; i < 5; i++) {
-            System.out.print(arr[arr.length-i-1]);
-        }
-        System.out.println("");
-    }
 
-    static void task2(){
-        Task1 task1 = new Task1();
+        test();
+
+
         arr = new float[size];
         arr=createArray();
-        a1 = new float[h];
-        a2 = new float[h];
 
-        t2_0();
+        divide(getBaseArr());
 
-        new Thread(() -> task1.t2_1()).start();
-        new Thread(() -> task1.t2_2()).start();
-        //  new Thread(() -> task1.t2_3()).start();
+        List<Thread> threads = new ArrayList<Thread>();
 
-    }
+        threads.add(new Thread(() -> Task.calc(getDivArr1(),0)));
+        threads.add(new Thread(() -> Task.calc(getDivArr2(),1)));
 
+        for (Thread thread: threads) {
+            thread.start();
+        }
 
+        for (Thread thread: threads) {
+            thread.join();
+        }
 
-    public static void main(String[] args) throws InterruptedException {
-        task1();
-        task2();
+        arr = plus(getDivArr1(), getDivArr2());
+
+        test();
+
     }
 }
