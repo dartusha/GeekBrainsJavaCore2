@@ -87,7 +87,7 @@ public class Task1 {
     public static void t2_2() {
         long a = System.currentTimeMillis();
         for (int i = 0; i < a2.length; i++) {
-            a1[i] = (float) (a2[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
+            a2[i] = (float) (a2[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
         System.out.format("Просчет подмассива 2: %d милисекунд",System.currentTimeMillis() - a);
         System.out.println("");
