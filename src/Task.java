@@ -113,16 +113,15 @@ public class Task {
         System.out.println("");
     }
 
-
-    public static void main(String[] args) throws InterruptedException {
+    public static void task1(){
         Task1 task1 = new Task1();
-        System.out.println("Start");
-
         arr=createArray();
         one();
-
         test();
+    }
 
+    public static void task2() throws InterruptedException {
+        Task1 task1 = new Task1();
 
         arr = new float[size];
         arr=createArray();
@@ -145,6 +144,12 @@ public class Task {
         arr = plus(getDivArr1(), getDivArr2());
 
         test();
+    }
 
+
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Start");
+        task1();
+        task2();
     }
 }
