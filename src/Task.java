@@ -114,14 +114,14 @@ public class Task {
     }
 
     public static void task1(){
-        Task1 task1 = new Task1();
+        Task task1 = new Task();
         arr=createArray();
         one();
         test();
     }
 
     public static void task2() throws InterruptedException {
-        Task1 task1 = new Task1();
+        Task task1 = new Task();
 
         arr = new float[size];
         arr=createArray();
