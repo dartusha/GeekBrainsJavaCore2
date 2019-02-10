@@ -11,10 +11,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class Controller implements Initializable, MessageSender {
 
     @FXML
     public TextField tfMessage;
@@ -29,10 +30,19 @@ public class Controller implements Initializable {
 
     private ObservableList<String> messageList;
 
+    private Network network;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         messageList = FXCollections.observableArrayList();
         lvMessages.setItems(messageList);
+
+        try {
+            network = new Network("localhost", 7777,  this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -42,8 +52,11 @@ public class Controller implements Initializable {
     public void onSendMessageClicked() {
         String text = tfMessage.getText();
         if (text != null && !text.isEmpty()) {
-            messageList.add(text);
-            lvMessages.setItems(messageList);
+           // messageList.add(text);
+
+            network.sendMessage(text);
+
+          //  lvMessages.setItems(messageList);
             tfMessage.clear();
             tfMessage.requestFocus();
         }
@@ -54,4 +67,16 @@ public class Controller implements Initializable {
             onSendMessageClicked();
         }
     };
+
+    @Override
+    public void submitMessage(String user, String message) {
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+        Message msg = new Message(user, message);
+        messageList.add(message);
+        lvMessages.setItems(messageList);
+    }
 }
+
+//TODO на закрытии сделать network.close
