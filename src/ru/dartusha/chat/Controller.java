@@ -1,7 +1,9 @@
 package ru.dartusha.chat;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -52,11 +54,7 @@ public class Controller implements Initializable, MessageSender {
     public void onSendMessageClicked() {
         String text = tfMessage.getText();
         if (text != null && !text.isEmpty()) {
-           // messageList.add(text);
-
             network.sendMessage(text);
-
-          //  lvMessages.setItems(messageList);
             tfMessage.clear();
             tfMessage.requestFocus();
         }
@@ -77,6 +75,34 @@ public class Controller implements Initializable, MessageSender {
         messageList.add(message);
         lvMessages.setItems(messageList);
     }
-}
 
-//TODO на закрытии сделать network.close
+
+    @FXML
+    /*public void exitApplication(ActionEvent event) {
+        System.out.println("stop");
+        try {
+            network.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    */
+
+    public void shutdown() {
+        // cleanup code here...
+        System.out.println("Stop");
+        //TODO если добавлять network.close то при закрытии окна возникают ошибки связанные с закрытым сокетом. Нужно удалять сокет из массивов. Сделать на будущее
+        /*
+        try {
+            network.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
+
+        // note that typically (i.e. if Platform.isImplicitExit() is true, which is the default)
+        // closing the last open window will invoke Platform.exit() anyway
+        Platform.exit();
+    }
+
+}

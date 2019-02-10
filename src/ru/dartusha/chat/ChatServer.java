@@ -1,11 +1,11 @@
 package ru.dartusha.chat;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ChatServer {
 
@@ -14,11 +14,7 @@ public class ChatServer {
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected!");
-                /*
-                BufferedReader inputCon = new BufferedReader(new InputStreamReader(System.in));
-                String inputStr= inputCon.readLine();
-                System.out.println(inputStr);
-                */
+
                 //TODO проанализировать GET /somepath HTTP/1.1 - распарсить, проверить путь и если нет - выдать 404
 
 
@@ -27,15 +23,33 @@ public class ChatServer {
 
                     while (!input.ready()) ;
 
+                    String ref="";
                     while (input.ready()) {
-                        System.out.println(input.readLine());
+                        String s=input.readLine();
+                        System.out.println(s);
+                        if (s.contains("GET")){
+                            ref=s.substring(4,s.indexOf("HTTP/1.1"));
+                        }
                     }
 
-                    output.println("HTTP/1.1 200 OK"); //те не 200 а 404
-                    output.println("Content-Type: text/html; charset=utf-8");
-                    output.println();
-                    output.println("<p>Привет всем!</p>");
-                    output.flush();
+                    String linkStr=System.getProperty("user.dir")+ref;
+                    File f = new File(linkStr);
+
+                    if(f.exists() || f.isDirectory()) {
+                        output.println("HTTP/1.1 200 OK"); //те не 200 а 404
+                        output.println("Content-Type: text/html; charset=utf-8");
+                        output.println();
+                        output.println("<p>Привет всем!</p>");
+                        output.flush();
+                    } else {
+                        output.println("HTTP/1.1 404 NOT OK"); //те не 200 а 404
+                        output.println("Content-Type: text/html; charset=utf-8");
+                        output.println();
+                        output.println("<p>Такого пути не существует :( </p>");
+                        output.flush();
+                    }
+
+
                 }
 
 

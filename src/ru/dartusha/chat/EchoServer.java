@@ -12,9 +12,10 @@ import java.util.List;
 
 public class EchoServer {
 
+
     public static void main(String[] args) {
-        List<Thread> threadsIO = new ArrayList<Thread>();
-        List<Thread> threadsOI = new ArrayList<Thread>();
+
+        List<Socket> sockets = new ArrayList<Socket>();
         //массив потоков, чтобы на все клиенты передалось сообщение от сервера
 
         try (ServerSocket serverSocket = new ServerSocket(7777)) {
@@ -23,44 +24,37 @@ public class EchoServer {
 
             while (true) {
                 Socket socket = serverSocket.accept();
+                sockets.add(socket);
                 System.out.println("Client connected!");
 
                 Thread io=
-                new Thread(new Runnable() {
+                        new Thread(new Runnable() {
 
-                    @Override
-                    public void run() {
+                            @Override
+                            public void run() {
+                                while (true) {
+                                    String inputStr = null;
+                                    try {
+                                        inputStr = "Сообщение от сервера: "+inputCon.readLine();
+                                        for (Socket i:sockets) {
+                                            DataOutputStream out = null;
+                                                try {
+                                                    out = new DataOutputStream(i.getOutputStream());
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
 
-                        DataOutputStream   out=null;
-                        try {
-                            out = new DataOutputStream(socket.getOutputStream());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        while (true) {
-                            String inputStr = null;
-                            try {
-                                inputStr = "Сообщение от сервера: "+inputCon.readLine();
-                                out.writeUTF(inputStr );
-                                out.flush();
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                                            out.writeUTF(inputStr);
+                                            out.flush();
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    System.out.println(inputStr);
+                                }
                             }
-                            System.out.println(inputStr);
-                        }
-                    }
-                });
-
-                threadsIO.add(io);
+                        });
                 io.start();
-
-                int cnt=0;
-                for (Thread thread: threadsIO) {
-                    cnt++;
-                    System.out.println("out cnt="+cnt);
-                 //    thread.start();
-                }
 
 
                 Thread oi=
@@ -85,19 +79,8 @@ public class EchoServer {
                     }
                 });
 
-                threadsOI.add(oi);
                 oi.start();
 
-              //  int cnt=0;
-               // for (Thread thread: threadsOI) {
-               //     cnt++;
-               //     System.out.println("out cnt="+cnt);
-                   // thread.start();
-             //   }
-
-
-
-//.start();
             }
         } catch (IOException ex) {
             ex.printStackTrace();

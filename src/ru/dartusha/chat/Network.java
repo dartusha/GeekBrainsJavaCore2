@@ -1,16 +1,12 @@
 package ru.dartusha.chat;
 
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Network implements Closeable {
 
@@ -20,7 +16,7 @@ public class Network implements Closeable {
     private final MessageSender messageSender;
     private final Thread receiver;
 
-    List<Thread> threads = new ArrayList<Thread>();
+
 
     public Network(String hostName, int port, MessageSender messageSender) throws IOException {
         this.socket = new Socket(hostName, port);
@@ -40,7 +36,7 @@ public class Network implements Closeable {
                                 (new Runnable() {
                             @Override
                             public void run() {
-                                System.out.println("Сообщение : " + msg);
+                               // System.out.println("Сообщение : " + msg);
                                 messageSender.submitMessage("server", msg);
                             }
                         });
@@ -51,14 +47,8 @@ public class Network implements Closeable {
             }
         });
 
-        threads.add(this.receiver);
         receiver.start();
-        //int cnt=0;
-        //for (Thread thread: threads) {
-       //     cnt++;
-       //     System.out.println("cnt="+cnt);
-        //    thread.start();
-        //}
+
     }
 
     public void sendMessage(String msg) {
