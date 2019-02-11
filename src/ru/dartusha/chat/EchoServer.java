@@ -8,17 +8,32 @@ import java.net.Socket;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+/*
+1. Написать консольный вариант клиент\серверного приложения, в котором пользователь может писать сообщения,
+как на клиентской стороне, так и на серверной. Т.е. если на клиентской стороне написать «Привет», нажать Enter,
+то сообщение должно передаться на сервер и там отпечататься в консоли. Если сделать то же самое на серверной стороне,
+то сообщение передается клиенту и печатается у него в консоли. Есть одна особенность, которую нужно учитывать:
+клиент или сервер может написать несколько сообщений подряд. Такую ситуацию необходимо корректно обработать.
+ */
+
+/*
+Сделано:
+1. отправка сообщения с клиента на сервер
+2. отправка сообщений на клиенты с сервера
+*/
 
 public class EchoServer {
 
 
     public static void main(String[] args) {
 
-        List<Socket> sockets = new ArrayList<Socket>();
+        List <Socket> sockets = Collections.synchronizedList(new ArrayList<Socket>());
         //массив потоков, чтобы на все клиенты передалось сообщение от сервера
 
-        try (ServerSocket serverSocket = new ServerSocket(7777)) {
+        try (ServerSocket serverSocket = new ServerSocket(Const.PORT)) {
             System.out.println("Server started!");
             BufferedReader inputCon = new BufferedReader(new InputStreamReader(System.in));
 
@@ -38,14 +53,15 @@ public class EchoServer {
                                         inputStr = "Сообщение от сервера: "+inputCon.readLine();
                                         for (Socket i:sockets) {
                                             DataOutputStream out = null;
-                                                try {
-                                                    out = new DataOutputStream(i.getOutputStream());
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
+                                            try {
+                                                out = new DataOutputStream(i.getOutputStream());
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
 
                                             out.writeUTF(inputStr);
                                             out.flush();
+
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -58,26 +74,36 @@ public class EchoServer {
 
 
                 Thread oi=
-                new Thread(new Runnable() {
+                        new Thread(new Runnable() {
 
-                    @Override
-                    public void run() {
+                            @Override
+                            public void run() {
 
-                        try (DataInputStream inp = new DataInputStream(socket.getInputStream());
-                             DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
+                                try (DataInputStream inp = new DataInputStream(socket.getInputStream());
+                                     DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
+                                    boolean flag=true;
+                                    while (flag) {
+                                        String msg = inp.readUTF();
+                                        if (msg.equals(Const.CMD_CLOSED)){
+                                            flag=false;
+                                            System.out.println("Client disconnected");
+                                            inp.close();
+                                            out.close();
+                                            sockets.remove(socket);
+                                            socket.close();
+                                        }
+                                        else {
+                                            System.out.println("Сообщение от клиента: " + msg);
+                                            out.writeUTF(msg);
+                                            out.flush();
+                                        }
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
 
-                            while (true) {
-                                String msg = inp.readUTF();
-                                System.out.println("Сообщение от клиента: " + msg);
-                                out.writeUTF(msg);
-                                out.flush();
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
+                        });
 
                 oi.start();
 

@@ -15,7 +15,7 @@ public class ChatServer {
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected!");
 
-                //TODO проанализировать GET /somepath HTTP/1.1 - распарсить, проверить путь и если нет - выдать 404
+                //проанализировать GET /somepath HTTP/1.1 - распарсить, проверить путь и если нет - выдать 404
 
 
                 try (BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -26,7 +26,6 @@ public class ChatServer {
                     String ref="";
                     while (input.ready()) {
                         String s=input.readLine();
-                        System.out.println(s);
                         if (s.contains("GET")){
                             ref=s.substring(4,s.indexOf("HTTP/1.1"));
                         }
