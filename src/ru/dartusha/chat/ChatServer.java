@@ -1,61 +1,71 @@
 package ru.dartusha.chat;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatServer {
 
-    public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(7777)) {
+    private static final Pattern AUTH_PATTERN = Pattern.compile("^/auth (.+) (.+)$");
+
+    private AuthService authService = new AuthServiceImpl();
+
+    private Map<String, ClientHandler> clientHandlerMap = Collections.synchronizedMap(new HashMap<>());
+
+    public void start(int port) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server started!");
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("Client connected!");
+                DataInputStream inp = new DataInputStream(socket.getInputStream());
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                System.out.println("New client connected!");
 
-                //проанализировать GET /somepath HTTP/1.1 - распарсить, проверить путь и если нет - выдать 404
-
-
-                try (BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                     PrintWriter output = new PrintWriter(socket.getOutputStream())) {
-
-                    while (!input.ready()) ;
-
-                    String ref="";
-                    while (input.ready()) {
-                        String s=input.readLine();
-                        if (s.contains("GET")){
-                            ref=s.substring(4,s.indexOf("HTTP/1.1"));
+                try {
+                    String authMessage = inp.readUTF();
+                    Matcher matcher = AUTH_PATTERN.matcher(authMessage);
+                    if (matcher.matches()) {
+                        String username = matcher.group(1);
+                        String password = matcher.group(2);
+                        if (authService.authUser(username, password)) {
+                            clientHandlerMap.put(username, new ClientHandler(username, socket, this));
+                            out.writeUTF("/auth successful");
+                            out.flush();
+                            System.out.printf("Authorization for user %s successful%n", username);
+                        } else {
+                            System.out.printf("Authorization for user %s failed%n", username);
+                            out.writeUTF("/auth fails");
+                            out.flush();
+                            socket.close();
                         }
-                    }
-
-                    String linkStr=System.getProperty("user.dir")+ref;
-                    File f = new File(linkStr);
-
-                    if(f.exists() || f.isDirectory()) {
-                        output.println("HTTP/1.1 200 OK"); //те не 200 а 404
-                        output.println("Content-Type: text/html; charset=utf-8");
-                        output.println();
-                        output.println("<p>Привет всем!</p>");
-                        output.flush();
                     } else {
-                        output.println("HTTP/1.1 404 NOT OK"); //те не 200 а 404
-                        output.println("Content-Type: text/html; charset=utf-8");
-                        output.println();
-                        output.println("<p>Такого пути не существует :( </p>");
-                        output.flush();
+                        System.out.printf("Incorrect authorization message %s%n", authMessage);
+                        out.writeUTF("/auth fails");
+                        out.flush();
+                        socket.close();
                     }
-
-
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-
-
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        ChatServer chatServer = new ChatServer();
+        chatServer.start(Const.PORT);
+    }
+
+    public void sendMessage(String username, String msg) {
+        // TODO реализовать отправку сообщения пользователю с именем username
     }
 }

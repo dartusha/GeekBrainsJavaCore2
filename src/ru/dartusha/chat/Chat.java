@@ -21,16 +21,25 @@ public class Chat extends Application {
     }
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("face.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginDialog.fxml"));
         Parent root = loader.load();
+        Scene scene = new Scene(root);
+        primaryStage.setTitle(Const.CHAT);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        /*
+        loader = new FXMLLoader(getClass().getResource("face.fxml"));
+        root = loader.load();
         Controller controller = loader.getController();
 
-        Scene scene = new Scene(root);
+        scene = new Scene(root);
 
         primaryStage.setTitle(Const.CHAT);
         primaryStage.setScene(scene);
         primaryStage.setOnHidden(e -> controller.shutdown());
         primaryStage.show();
+        */
     }
 
 
