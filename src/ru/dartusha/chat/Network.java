@@ -10,11 +10,16 @@ import java.net.Socket;
 
 public class Network implements Closeable {
 
+    private static final String AUTH_PATTERN = "/auth %s %s";
+    private static final String MESSAGE_PATTERN = "/w %s %s";
+
     private final Socket socket;
     private final DataOutputStream out;
     private final DataInputStream in;
     private final MessageSender messageSender;
     private final Thread receiver;
+
+    private String username;
 
     public Network(String hostName, int port, MessageSender messageSender) throws IOException {
         this.socket = new Socket(hostName, port);
@@ -22,47 +27,73 @@ public class Network implements Closeable {
         this.in = new DataInputStream(socket.getInputStream());
         this.messageSender = messageSender;
 
-        this.receiver = new Thread(new Runnable() {
+        this.receiver = createReceiverThread();
+    }
+
+    private Thread createReceiverThread() {
+        return new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
-                            //TODO После закрытия close() выпадает здесь в exception. Хотя по идее уже не должен
-                            //был сюда переходить из-за interrupted. Решить не удалось
-                            String msg = in.readUTF();
-                            // SwingUtilities.invokeLater
-                            Platform.runLater
-                                    (new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            messageSender.submitMessage(Const.SERVER, msg);
-                                        }
-                                    });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        String text = in.readUTF();
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                System.out.println("New message " + text);
+                                Message msg = new Message("server", username,  text);
+                                messageSender.submitMessage(msg);
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
+            }
         });
+    }
 
-        this.receiver.start();
-
+    public void sendMessageToUser(Message message) {
+        // TODO здесь нужно сформировать личное сообщение в понятном для сервера формате
+        sendMessage(message.getText());
     }
 
     public void sendMessage(String msg) {
-            try {
-                out.writeUTF(msg);
-                out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            out.writeUTF(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void authorize(String username, String password) {
+        try {
+            out.writeUTF(String.format(AUTH_PATTERN, username, password));
+            String response = in.readUTF();
+            if (response.equals("/auth successful")) {
+                this.username = username;
+                receiver.start();
+            } else {
+                throw new AuthException();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     @Override
     public void close() throws IOException {
-        in.close();
-        out.close();
         socket.close();
         receiver.interrupt();
+        try {
+            receiver.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -30,7 +30,7 @@ public class Controller implements Initializable, MessageSender {
 
     private ObservableList<String> messageList;
 
-    private Network network;
+    //private Network network;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -38,12 +38,12 @@ public class Controller implements Initializable, MessageSender {
         lvMessages.setItems(messageList);
 
 
-        try {
-            network = new Network(Const.LOCAL_HOST, Const.PORT,  this);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+       // try {
+       //     network = new Network(Const.LOCAL_HOST, Const.PORT,  this);
+       // } catch (IOException e) {
+       //     e.printStackTrace();
+       //     System.exit(-1);
+       //}
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -53,7 +53,7 @@ public class Controller implements Initializable, MessageSender {
     public void onSendMessageClicked() {
         String text = tfMessage.getText();
         if (text != null && !text.isEmpty()) {
-            network.sendMessage(text);
+           // LoginController.getNetwork().sendMessage(text);
             tfMessage.clear();
             tfMessage.requestFocus();
         }
@@ -65,25 +65,21 @@ public class Controller implements Initializable, MessageSender {
         }
     };
 
-    @Override
-    public void submitMessage(String user, String message) {
-        if (message == null || message.isEmpty()) {
-            return;
-        }
-        Message msg = new Message(user, message);
-        messageList.add(message);
+    public void submitMessage(Message message) {
+        //Message msg = new Message()
+        messageList.add(message.getText());
         lvMessages.setItems(messageList);
     }
 
 
-    public void shutdown() {
-        try {
-            network.sendMessage(Const.CMD_CLOSED);
-            network.close();
-        } catch (IOException e) {
-           e.printStackTrace();
-        }
-        Platform.exit();
+    //public void shutdown() {
+    //   try {
+     //       network.sendMessage(Const.CMD_CLOSED);
+     //       network.close();
+     //   } catch (IOException e) {
+     //      e.printStackTrace();
+     //   }
+      //  Platform.exit();
     }
 
-}
+

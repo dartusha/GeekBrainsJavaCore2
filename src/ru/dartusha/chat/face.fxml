@@ -9,7 +9,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.dartusha.chat.Controller">
     <top>
-    <Text fill="#287c15" text="Добро пожаловать в чат!">
+    <Text fill="#287c15" fx:id="txtWelcome" text="Добро пожаловать в чат!">
          <font>
             <Font name="System Bold" size="18.0" />
          </font></Text>

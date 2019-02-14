@@ -13,11 +13,16 @@ import java.util.regex.Pattern;
 
 public class ChatServer {
 
-    private static final Pattern AUTH_PATTERN = Pattern.compile("^/auth (.+) (.+)$");
+    private static final Pattern AUTH_PATTERN = Pattern.compile("^/auth (\\w+) (\\w+)$");
 
     private AuthService authService = new AuthServiceImpl();
 
     private Map<String, ClientHandler> clientHandlerMap = Collections.synchronizedMap(new HashMap<>());
+
+    public static void main(String[] args) {
+        ChatServer chatServer = new ChatServer();
+        chatServer.start(Const.PORT);
+    }
 
     public void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -60,12 +65,7 @@ public class ChatServer {
         }
     }
 
-    public static void main(String[] args) {
-        ChatServer chatServer = new ChatServer();
-        chatServer.start(Const.PORT);
-    }
-
-    public void sendMessage(String username, String msg) {
+    public void sendMessage(String userTo, String userFrom, String msg) {
         // TODO реализовать отправку сообщения пользователю с именем username
     }
 }
