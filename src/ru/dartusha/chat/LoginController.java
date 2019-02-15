@@ -1,7 +1,4 @@
 package ru.dartusha.chat;
-
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,7 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class LoginController  implements MessageSender  {
+public class LoginController  implements MessageSender, Initializable  {
 
     @FXML
     public TextField tfLogin;
@@ -46,6 +43,8 @@ public class LoginController  implements MessageSender  {
             txtLoginResult.setText("");
             Stage stage = (Stage) btLogin.getScene().getWindow();
             stage.close();
+            DataProcess.setNetwork(network);
+            DataProcess.setCuruser(tfLogin.getText());
         } catch (IOException ex) {
             ex.printStackTrace();
             txtLoginResult.setText("Ошибка сети");
@@ -55,8 +54,7 @@ public class LoginController  implements MessageSender  {
         }
 }
 
-
-    public Network getNetwork() {
+    @FXML public Network getNetwork() {
         return network;
     }
 
@@ -78,4 +76,8 @@ public class LoginController  implements MessageSender  {
         System.out.println("test submit");
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
 }

@@ -35,53 +35,6 @@ public class Controller implements Initializable, MessageSender {
 
     private ObservableList<String> messageList;
 
-    public Network network;
-
-    @FXML
-    public TextField tfLogin;
-
-    @FXML
-    public TextField pfPassword;
-
-    @FXML
-    public Button btLogin;
-
-    @FXML
-    public Text txtLoginResult;
-
-    String usrCur;
-
-    public void onLoginClicked(ActionEvent event) {
-        network = null;
-        try {
-            network = new Network(Const.LOCAL_HOST, Const.PORT, (MessageSender) this);
-            System.out.println(tfLogin.getText()+ String.valueOf(pfPassword.getText()));
-            usrCur=tfLogin.getText();
-            network.authorize(tfLogin.getText(), String.valueOf(pfPassword.getText()));
-            txtLoginResult.setText("");
-            Stage stage = (Stage) btLogin.getScene().getWindow();
-            stage.hide();
-            System.out.println("UsrCur:"+usrCur);
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            txtLoginResult.setText("Ошибка сети");
-        }
-        catch (AuthException ex) {
-            txtLoginResult.setText("Ошибка авторизации");
-        }
-    }
-
-
-    public Network getNetwork() {
-        return network;
-    }
-
-
-    public boolean isAuthSuccessful() {
-        return network != null;
-    }
-
 
 
     //private Network network;
@@ -107,11 +60,16 @@ public class Controller implements Initializable, MessageSender {
 
     public void onSendMessageClicked() {
         String text = tfMessage.getText();
+        Message msg=null;
         //TODO Проблема здесь. Хотя раньше на onLoginClicked инициализирую логин текущего пользователя usrCur далее при обращении к нему из другой процедуры он возвращается как null. Из-за этого не могу поставить источника сообщения и отправить его.
-        System.out.println("UsrCur 2:"+usrCur);
-       // System.out.println(network);
-        System.out.println("to:"+ text );
-        Message msg = new Message("","", tfMessage.getText());
+        System.out.println(text.substring(0,2));
+        if (text.substring(0,2).equals("/w")) {
+            System.out.println(text.substring(1, text.length()));
+            System.out.println("to:" + text.substring(3, text.indexOf(" ",3) == -1 ? text.length() : text.indexOf(" ",3)));
+            msg = new Message(text.substring(1, text.indexOf(" ") == -1 ? text.length() : text.indexOf(" ")), DataProcess.getCuruser(), tfMessage.getText());
+        }
+        else
+            msg = new Message("", DataProcess.getCuruser(), tfMessage.getText());
         submitMessage(msg);
         if (text != null && !text.isEmpty()) {
             tfMessage.clear();
@@ -129,13 +87,13 @@ public class Controller implements Initializable, MessageSender {
       //  System.out.println(message.getText());
         messageList.add(message.getText());
         lvMessages.setItems(messageList);
-        network.sendMessage(message.getText());
+        DataProcess.getNetwork().sendMessage(message.getText());
     }
 
     public void onLvUsersClick() {
-        String str=lvUsers.getSelectionModel().getSelectedItem().toString();
+        String str="/w "+lvUsers.getSelectionModel().getSelectedItem().toString();
         tfMessage.clear();
-        tfMessage.setText("/"+str);
+        tfMessage.setText(str);
     }
 
 

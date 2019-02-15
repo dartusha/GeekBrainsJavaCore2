@@ -4,9 +4,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /*
@@ -18,7 +15,6 @@ import javafx.stage.Stage;
  */
 
 public class Chat extends Application {
-    private Network network;
 
     public Chat(){
 
@@ -28,7 +24,6 @@ public class Chat extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("face.fxml"));
         Parent root = loader.load();
         Controller controller = loader.getController();
-
         Scene scene = new Scene(root);
 
         primaryStage.setTitle(Const.CHAT);
@@ -36,16 +31,8 @@ public class Chat extends Application {
         //primaryStage.setOnHidden(e -> controller.shutdown());
         primaryStage.show();
 
+        LoginDialog login=new LoginDialog(primaryStage);
 
-        FXMLLoader loaderSub = new FXMLLoader(getClass().getResource("LoginDialog.fxml"));
-        GridPane page = (GridPane) loaderSub.load();
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle("Авторизация");
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.initOwner(primaryStage);
-        Scene sceneSub = new Scene(page);
-        dialogStage.setScene(sceneSub);
-        dialogStage.show();
 
     }
 

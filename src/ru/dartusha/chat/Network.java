@@ -59,7 +59,6 @@ public class Network implements Closeable {
     }
 
     public void sendMessage(String msg) {
-        System.out.println("here");
         try {
             out.writeUTF(msg);
             out.flush();
