@@ -47,4 +47,8 @@ public class ClientHandler {
         });
         handleThread.start();
     }
+
+    public DataOutputStream getOut() {
+        return out;
+    }
 }

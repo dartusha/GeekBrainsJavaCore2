@@ -33,7 +33,6 @@ public class LoginController  implements MessageSender  {
 
     public Network network;
 
-
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
@@ -47,12 +46,11 @@ public class LoginController  implements MessageSender  {
             txtLoginResult.setText("");
             Stage stage = (Stage) btLogin.getScene().getWindow();
             stage.close();
-
         } catch (IOException ex) {
             ex.printStackTrace();
             txtLoginResult.setText("Ошибка сети");
-            return;
-        } catch (AuthException ex) {
+        }
+        catch (AuthException ex) {
             txtLoginResult.setText("Ошибка авторизации");
         }
 }
@@ -60,6 +58,15 @@ public class LoginController  implements MessageSender  {
 
     public Network getNetwork() {
         return network;
+    }
+
+    public void setNetwork(Network network) {
+        try {
+            this.network = new Network(Const.LOCAL_HOST, Const.PORT, this);//(MessageSender) primaryStage);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            txtLoginResult.setText("Ошибка сети");
+        }
     }
 
     public boolean isAuthSuccessful() {
@@ -70,4 +77,5 @@ public class LoginController  implements MessageSender  {
     public void submitMessage(Message msg) {
         System.out.println("test submit");
     }
+
 }

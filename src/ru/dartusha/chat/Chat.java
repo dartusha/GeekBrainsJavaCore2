@@ -38,7 +38,6 @@ public class Chat extends Application {
 
 
         FXMLLoader loaderSub = new FXMLLoader(getClass().getResource("LoginDialog.fxml"));
-        Controller controllerSub = loaderSub.getController();
         GridPane page = (GridPane) loaderSub.load();
         Stage dialogStage = new Stage();
         dialogStage.setTitle("Авторизация");

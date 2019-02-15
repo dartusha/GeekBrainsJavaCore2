@@ -44,6 +44,9 @@ public class ChatServer {
                             out.writeUTF("/auth successful");
                             out.flush();
                             System.out.printf("Authorization for user %s successful%n", username);
+
+                          //  sendMessage("ivan", "petr", "test");
+
                         } else {
                             System.out.printf("Authorization for user %s failed%n", username);
                             out.writeUTF("/auth fails");
@@ -67,5 +70,14 @@ public class ChatServer {
 
     public void sendMessage(String userTo, String userFrom, String msg) {
         // TODO реализовать отправку сообщения пользователю с именем username
+        ClientHandler from=clientHandlerMap.get(userFrom);
+        ClientHandler to=clientHandlerMap.get(userTo);
+        System.out.printf("Сервер сообщение от пользователя %s к пользователю %s - %s",userFrom,userTo,msg);
+        try {
+            to.getOut().writeUTF(userFrom+":"+msg);
+            to.getOut().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

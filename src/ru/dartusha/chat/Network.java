@@ -19,7 +19,7 @@ public class Network implements Closeable {
     private final MessageSender messageSender;
     private final Thread receiver;
 
-    private String username;
+    private  String usr;
 
     public Network(String hostName, int port, MessageSender messageSender) throws IOException {
         this.socket = new Socket(hostName, port);
@@ -41,7 +41,7 @@ public class Network implements Closeable {
                             @Override
                             public void run() {
                                 System.out.println("New message " + text);
-                                Message msg = new Message("server", username,  text);
+                                Message msg = new Message("server", usr,  text);
                                 messageSender.submitMessage(msg);
                             }
                         });
@@ -59,6 +59,7 @@ public class Network implements Closeable {
     }
 
     public void sendMessage(String msg) {
+        System.out.println("here");
         try {
             out.writeUTF(msg);
             out.flush();
@@ -72,7 +73,8 @@ public class Network implements Closeable {
             out.writeUTF(String.format(AUTH_PATTERN, username, password));
             String response = in.readUTF();
             if (response.equals("/auth successful")) {
-                this.username = username;
+                usr = username;
+                System.out.println("username:"+usr );
                 receiver.start();
             } else {
                 throw new AuthException();
@@ -83,7 +85,7 @@ public class Network implements Closeable {
     }
 
     public String getUsername() {
-        return username;
+        return usr;
     }
 
     @Override
