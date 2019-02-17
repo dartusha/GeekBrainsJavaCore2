@@ -12,8 +12,6 @@ public class LoginDialog {
     public LoginDialog(Stage primaryStage) throws Exception {
         FXMLLoader loaderSub = new FXMLLoader(getClass().getResource("LoginDialog.fxml"));
         Controller controller = loaderSub.getController();
-      //  loaderSub.setController( this );
-    //    controller.setPrimaryStage(primaryStage);
 
         GridPane page = (GridPane) loaderSub.load();
         Stage dialogStage = new Stage();

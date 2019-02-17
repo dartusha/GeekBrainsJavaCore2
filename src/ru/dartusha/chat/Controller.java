@@ -42,16 +42,6 @@ public class Controller implements Initializable, MessageSender {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         messageList = FXCollections.observableArrayList();
-
-        // lvMessages.setItems(usersList);
-
-
-       // try {
-       //     network = new Network(Const.LOCAL_HOST, Const.PORT,  this);
-       // } catch (IOException e) {
-       //     e.printStackTrace();
-       //     System.exit(-1);
-       //}
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -61,16 +51,10 @@ public class Controller implements Initializable, MessageSender {
     public void onSendMessageClicked() {
         String text = tfMessage.getText();
         Message msg=null;
-        //TODO Проблема здесь. Хотя раньше на onLoginClicked инициализирую логин текущего пользователя usrCur далее при обращении к нему из другой процедуры он возвращается как null. Из-за этого не могу поставить источника сообщения и отправить его.
-        System.out.println(text.substring(0,2));
-        if (text.substring(0,2).equals("/w")) {
-            System.out.println(text.substring(1, text.length()));
-            System.out.println("to:" + text.substring(3, text.indexOf(" ",3) == -1 ? text.length() : text.indexOf(" ",3)));
-            msg = new Message(text.substring(1, text.indexOf(" ") == -1 ? text.length() : text.indexOf(" ")), DataProcess.getCuruser(), tfMessage.getText());
-        }
-        else
-            msg = new Message("", DataProcess.getCuruser(), tfMessage.getText());
+
+        msg = new Message("", DataProcess.getCuruser(), tfMessage.getText());
         submitMessage(msg);
+        DataProcess.getNetwork().sendMessage(msg.getText());
         if (text != null && !text.isEmpty()) {
             tfMessage.clear();
             tfMessage.requestFocus();
@@ -84,10 +68,8 @@ public class Controller implements Initializable, MessageSender {
     };
 
     public void submitMessage(Message message) {
-      //  System.out.println(message.getText());
-        messageList.add(message.getText());
+        messageList.add(message.getText().replace("/w","Для "));
         lvMessages.setItems(messageList);
-        DataProcess.getNetwork().sendMessage(message.getText());
     }
 
     public void onLvUsersClick() {

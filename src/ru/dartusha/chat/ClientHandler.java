@@ -4,12 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class ClientHandler {
 
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile("^/w (\\w+) (.+)", Pattern.MULTILINE);
     private final Thread handleThread;
     private final DataInputStream inp;
     private final DataOutputStream out;
@@ -31,7 +31,14 @@ public class ClientHandler {
                     while (!Thread.currentThread().isInterrupted()) {
                         String msg = inp.readUTF();
                         System.out.printf("Message from user %s: %s%n", username, msg);
-                        // TODO реализовать прием сообщений от клиента и пересылку адресату через сервер
+                        System.out.println("");
+                        Matcher matcher = Const.MESSAGE_PATTERN.matcher(msg);
+                        if (matcher.matches()) {
+                            String userTo = matcher.group(1);
+                            String sendMsg= matcher.group(2);
+                            server.sendMessage(username,userTo,sendMsg);
+                        }
+
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

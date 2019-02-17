@@ -35,6 +35,7 @@ public class ChatServer {
 
                 try {
                     String authMessage = inp.readUTF();
+                    System.out.println(authMessage);
                     Matcher matcher = AUTH_PATTERN.matcher(authMessage);
                     if (matcher.matches()) {
                         String username = matcher.group(1);
@@ -68,13 +69,13 @@ public class ChatServer {
         }
     }
 
-    public void sendMessage(String userTo, String userFrom, String msg) {
-        // TODO реализовать отправку сообщения пользователю с именем username
+    public void sendMessage(String userFrom, String userTo, String msg) {
         ClientHandler from=clientHandlerMap.get(userFrom);
         ClientHandler to=clientHandlerMap.get(userTo);
         System.out.printf("Сервер сообщение от пользователя %s к пользователю %s - %s",userFrom,userTo,msg);
+        System.out.println("");
         try {
-            to.getOut().writeUTF(userFrom+":"+msg);
+            to.getOut().writeUTF("От "+userFrom+": "+msg);
             to.getOut().flush();
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,7 +2,6 @@ package ru.dartusha.chat;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -26,18 +25,18 @@ public class LoginController  implements MessageSender, Initializable  {
     @FXML
     public Text txtLoginResult;
 
-    Stage primaryStage;
+    Stage pSt;
 
     public Network network;
 
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
+    public void setPS(Stage primaryStage) {
+        pSt = primaryStage;
     }
 
     @FXML public void onLoginClicked(ActionEvent event) {
         network = null;
         try {
-            network = new Network(Const.LOCAL_HOST, Const.PORT, (MessageSender) primaryStage);
+            network = new Network(Const.LOCAL_HOST, Const.PORT, (MessageSender) DataProcess.getParentController());
             System.out.println(tfLogin.getText()+ String.valueOf(pfPassword.getText()));
             network.authorize(tfLogin.getText(), String.valueOf(pfPassword.getText()));
             txtLoginResult.setText("");

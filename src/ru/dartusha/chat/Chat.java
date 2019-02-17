@@ -25,6 +25,7 @@ public class Chat extends Application {
         Parent root = loader.load();
         Controller controller = loader.getController();
         Scene scene = new Scene(root);
+        DataProcess.setParentController(controller);
 
         primaryStage.setTitle(Const.CHAT);
         primaryStage.setScene(scene);

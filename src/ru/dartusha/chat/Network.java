@@ -11,7 +11,6 @@ import java.net.Socket;
 public class Network implements Closeable {
 
     private static final String AUTH_PATTERN = "/auth %s %s";
-    private static final String MESSAGE_PATTERN = "/w %s %s";
 
     private final Socket socket;
     private final DataOutputStream out;
@@ -40,7 +39,7 @@ public class Network implements Closeable {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                System.out.println("New message " + text);
+                                System.out.println("New message:" + text);
                                 Message msg = new Message("server", usr,  text);
                                 messageSender.submitMessage(msg);
                             }
