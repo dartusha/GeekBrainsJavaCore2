@@ -1,6 +1,8 @@
 package ru.dartusha.chat;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -26,15 +28,14 @@ public class Chat extends Application {
         Controller controller = loader.getController();
         Scene scene = new Scene(root);
         DataProcess.setParentController(controller);
-
         primaryStage.setTitle(Const.CHAT);
+
         primaryStage.setScene(scene);
-        //primaryStage.setOnHidden(e -> controller.shutdown());
+        primaryStage.setOnHidden(e -> controller.shutdown());
+
         primaryStage.show();
 
         LoginDialog login=new LoginDialog(primaryStage);
-
-
     }
 
 

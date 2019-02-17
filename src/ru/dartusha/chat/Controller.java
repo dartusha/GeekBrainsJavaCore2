@@ -23,6 +23,9 @@ public class Controller implements Initializable, MessageSender {
     public TextField tfMessage;
 
     @FXML
+    public Text txtWelcome;
+
+    @FXML
     public ListView lvMessages;
 
     @FXML
@@ -34,14 +37,16 @@ public class Controller implements Initializable, MessageSender {
     Stage primaryStage;
 
     private ObservableList<String> messageList;
-
-
+    private ObservableList<String> userList;
 
     //private Network network;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         messageList = FXCollections.observableArrayList();
+        userList = FXCollections.observableArrayList();
+        userList.addAll("ivan", "petr", "julia"); // пока фмксированный список
+        lvUsers.setItems(userList);
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -50,7 +55,7 @@ public class Controller implements Initializable, MessageSender {
 
     public void onSendMessageClicked() {
         String text = tfMessage.getText();
-        Message msg=null;
+        Message msg = null;
 
         msg = new Message("", DataProcess.getCuruser(), tfMessage.getText());
         submitMessage(msg);
@@ -65,28 +70,63 @@ public class Controller implements Initializable, MessageSender {
         if (keyEvent.getCode() == KeyCode.ENTER) {
             onSendMessageClicked();
         }
-    };
+    }
+
+    ;
 
     public void submitMessage(Message message) {
-        messageList.add(message.getText().replace("/w","Для "));
-        lvMessages.setItems(messageList);
+        if (message.getText().contains("$")==false) {
+            String result=message.getText();
+            if (result.contains("/w")) {
+                result = result.replace("/w", "(private)");
+                if (result.indexOf(" ")!=-1) {
+                    result = result.substring(result.indexOf(" "), result.length());
+                }
+            }
+            if (result.contains("/a")) {
+                result = result.replace("/a", "");
+            }
+
+            messageList.add(result);//.replace("/w", "Для "));
+            lvMessages.setItems(messageList);
+        }
+
+        if (message.getText().contains("$USERS:")){
+            String[] array = message.getText().substring(18,message.getText().length()).split("\\,");
+            for (String cur:array) {
+                if (!DataProcess.getCuruser().equals(cur))
+                    userList.add(cur);
+            }
+
+            lvUsers.setItems(userList);
+        }
+
+        if (message.getText().contains("connected")){
+            userList.clear();
+            DataProcess.getNetwork().sendMessage("$GET_USERS");
+        }
     }
 
     public void onLvUsersClick() {
-        String str="/w "+lvUsers.getSelectionModel().getSelectedItem().toString();
+        String str = "/w " + lvUsers.getSelectionModel().getSelectedItem().toString();
         tfMessage.clear();
         tfMessage.setText(str);
     }
 
 
-    //public void shutdown() {
-    //   try {
-     //       network.sendMessage(Const.CMD_CLOSED);
-     //       network.close();
-     //   } catch (IOException e) {
-     //      e.printStackTrace();
-     //   }
-      //  Platform.exit();
+    public void shutdown() {
+        try {
+            DataProcess.getNetwork().sendMessage(Const.CMD_CLOSED);
+            System.out.println("Client "+DataProcess.getCuruser()+" disconnected");
+            DataProcess.getNetwork().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Platform.exit();
     }
 
+    public void setUser(){
+        txtWelcome.setText("Добро пожаловать в чат, "+DataProcess.getCuruser());
+    }
+}
 

@@ -44,6 +44,7 @@ public class LoginController  implements MessageSender, Initializable  {
             stage.close();
             DataProcess.setNetwork(network);
             DataProcess.setCuruser(tfLogin.getText());
+            DataProcess.getParentController().setUser();
         } catch (IOException ex) {
             ex.printStackTrace();
             txtLoginResult.setText("Ошибка сети");

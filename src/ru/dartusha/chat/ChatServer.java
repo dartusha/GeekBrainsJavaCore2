@@ -1,13 +1,9 @@
 package ru.dartusha.chat;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +27,9 @@ public class ChatServer {
                 Socket socket = serverSocket.accept();
                 DataInputStream inp = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                BufferedReader inputCon = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("New client connected!");
-
+               // startTimer(socket);
                 try {
                     String authMessage = inp.readUTF();
                     System.out.println(authMessage);
@@ -45,14 +42,39 @@ public class ChatServer {
                             out.writeUTF("/auth successful");
                             out.flush();
                             System.out.printf("Authorization for user %s successful%n", username);
+                            broadcastUserConnected(username);
+                            //  sendMessage("ivan", "petr", "test");
 
-                          //  sendMessage("ivan", "petr", "test");
+                            Thread serverMsg=
+                                    new Thread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            while (true) {
+                                                String inputStr = null;
+                                                try {
+                                                    inputStr = inputCon.readLine();
+                                                        for(ClientHandler client : clientHandlerMap.values())
+                                                        {
+                                                            client.sendMessage("server",inputStr,"");
+                                                        }
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                System.out.format("Сообщение от сервера: %s",inputStr);
+                                                System.out.println("");
+                                            }
+                                        }
+                                    });
+                            serverMsg.start();
+
 
                         } else {
-                            System.out.printf("Authorization for user %s failed%n", username);
-                            out.writeUTF("/auth fails");
-                            out.flush();
-                            socket.close();
+                            //System.out.printf("Authorization for user %s failed%n", username);
+                           //out.writeUTF("/auth fails");
+                           // out.flush();
+                           // socket.close();
+                            startTimer(username, socket);
                         }
                     } else {
                         System.out.printf("Incorrect authorization message %s%n", authMessage);
@@ -62,6 +84,7 @@ public class ChatServer {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+
                 }
             }
         } catch (IOException e) {
@@ -69,16 +92,91 @@ public class ChatServer {
         }
     }
 
-    public void sendMessage(String userFrom, String userTo, String msg) {
-        ClientHandler from=clientHandlerMap.get(userFrom);
-        ClientHandler to=clientHandlerMap.get(userTo);
-        System.out.printf("Сервер сообщение от пользователя %s к пользователю %s - %s",userFrom,userTo,msg);
-        System.out.println("");
+    public void sendMessage(String userFrom, String userTo, String msg) throws IOException {
+        ClientHandler userToClientHandler = clientHandlerMap.get(userTo);
+        if (userToClientHandler != null) {
+            userToClientHandler.sendMessage(userFrom, msg,"");
+        } else {
+            System.out.printf("User %s not found. Message from %s is lost.%n", userTo, userFrom);
+        }
+
+    }
+
+    public List<String> getUserList() {
+        return new ArrayList<>(clientHandlerMap.keySet());
+    }
+
+    public void unsubscribeClient(ClientHandler clientHandler) {
+        String userName=clientHandler.getUsername();
+        clientHandlerMap.remove(userName);
         try {
-            to.getOut().writeUTF("От "+userFrom+": "+msg);
-            to.getOut().flush();
+            broadcastUserDisconnected(userName);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void unsubscribeClient(String userName) {
+        clientHandlerMap.remove(userName);
+        try {
+            broadcastUserDisconnected(userName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void broadcastUserConnected(String usrName) throws IOException {
+        for(ClientHandler client : clientHandlerMap.values())
+        {
+            client.sendMessage("server", "User "+usrName+" connected","");
+        }
+    }
+
+    public void sendMessageAll(String userFrom, String msg) throws IOException {
+        for(ClientHandler client : clientHandlerMap.values())
+        {
+           if (client.getUsername()!=userFrom) {
+               client.sendMessage(client.getUsername(), "/a " + msg,userFrom);
+           }
+        }
+
+    }
+
+
+    public void broadcastUserDisconnected(String usrName) throws IOException {
+        for(ClientHandler client : clientHandlerMap.values())
+        {
+            client.sendMessage("server", "User "+usrName+" disconnected","");
+        }
+    }
+
+    public void startTimer(String userName, Socket socket){
+        //test
+        Thread timeoutThread=
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            System.out.printf("You have %d seconds for login.", Const.TIMEOUT);
+                            System.out.println("");
+                            Thread.sleep(1000*Const.TIMEOUT);
+                            if (clientHandlerMap.get(userName)==null) {
+                                socket.close();
+                                System.out.printf("Authorization for user %s failed%n", userName);
+                                System.out.println("");
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                });
+        timeoutThread.start();
+    }
 }
+
+

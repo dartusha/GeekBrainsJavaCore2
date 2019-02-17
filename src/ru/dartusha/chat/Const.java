@@ -10,4 +10,7 @@ public class Const {
     final static int    PORT=7777;
     final static String SERVER="server";
     static final Pattern MESSAGE_PATTERN = Pattern.compile("^/w (\\w+) (.+)", Pattern.MULTILINE);
+    static final String MESSAGE_SEND_PATTERN = "/w %s: %s";
+    static final String MESSAGE_SEND_ALL_PATTERN = "/a %s: %s";
+    final static int  TIMEOUT=10;
 }
